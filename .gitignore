@@ -1,0 +1,12 @@
+.venv
+venv/
+
+Infos complementares/
+
+data/
+relatorios/
+
+*.docx
+
+*.zip
+
