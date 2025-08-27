@@ -25,7 +25,7 @@ def features_flags_flex(df_tx: pd.DataFrame,
     """
 
     resultados = []
-    janelas = {"1m": 1, "3m": 3, "6m": 6, "12m": 12, "24m": 24, "ever": None}
+    janelas = {"1m": 1, "3m": 3, "6m": 6, "9m": 9, "12m": 12, "24m": 24, "ever": None}
     clientes_com_tx = set(df_tx[id_col].unique())
 
     for _, row in df_inad.iterrows():

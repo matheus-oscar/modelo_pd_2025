@@ -26,7 +26,7 @@ def features_quantidade_flex(df_tx: pd.DataFrame,
 
     resultados = []
     janelas = {"1m": 1, "3m": 3, "6m": 6, "9m": 9, "12m": 12, "24m": 24, "ever": None}
-    comparacoes = [("1m","3m"), ("3m","6m"), ("6m","12m"), ("12m","24m"), ("24m","ever")]
+    comparacoes = [("1m","3m"), ("3m","6m"), ("6m","9m"),("9m","12m"), ("12m","24m"), ("24m","ever")]
 
     clientes_com_tx = set(df_tx[id_col].unique())
 

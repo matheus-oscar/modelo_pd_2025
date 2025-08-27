@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 
+
 def features_valor_flex(df_tx: pd.DataFrame,
                         df_inad: pd.DataFrame,
                         id_col="id_cliente",
@@ -36,8 +37,8 @@ def features_valor_flex(df_tx: pd.DataFrame,
     resultados = []
     janelas = {"1m": 1, "3m": 3, "6m": 6, "9m": 9,
                "12m": 12, "24m": 24, "ever": None}
-    comparacoes = [("1m", "3m"), ("3m", "6m"), ("6m", "12m"),
-                   ("12m", "24m"), ("24m", "ever")]
+    comparacoes = [("1m", "3m"), ("3m", "6m"), ("6m", "9m"),
+                   ("9m", "12m"), ("12m", "24m"), ("24m", "ever")]
 
     clientes_com_tx = set(df_tx[id_col].unique())
 
@@ -69,7 +70,8 @@ def features_valor_flex(df_tx: pd.DataFrame,
             else:
                 start = (cutoff - pd.DateOffset(months=meses-1)).replace(day=1)
                 tx_window = tx_cliente[tx_cliente[dt_col] >= start]
-            feats[f"vlr_trans_{label}"] = tx_window[val_col].sum() if not tx_window.empty else 0
+            feats[f"vlr_trans_{label}"] = tx_window[val_col].sum(
+            ) if not tx_window.empty else 0
 
         # Última, máxima e mínima com idxmax/idxmin
         if not tx_cliente.empty:
@@ -90,7 +92,8 @@ def features_valor_flex(df_tx: pd.DataFrame,
         for a, b in comparacoes:
             v1 = feats[f"vlr_trans_{a}"]
             v2 = feats[f"vlr_trans_{b}"]
-            feats[f"comp_vlr_{a}_vs_{b}"] = np.nan if (v1 == 0 and v2 == 0) else (-1 if v2 == 0 else round(v1/v2, 3))
+            feats[f"comp_vlr_{a}_vs_{b}"] = np.nan if (
+                v1 == 0 and v2 == 0) else (-1 if v2 == 0 else round(v1/v2, 3))
             feats[f"delta_vlr_{a}_vs_{b}"] = v1 - v2
 
         resultados.append({id_col: cid, ref_col: ref_date, **feats})
