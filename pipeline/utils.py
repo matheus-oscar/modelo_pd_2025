@@ -395,16 +395,25 @@ def get_precisions_recalls(actual, preds):
 def taxa_inadimplencia_por_variavel(df, var, target="atraso_90d", bins=10):
     """
     Calcula a taxa de inadimplência por faixas de uma variável contínua.
+
+    Retorna colunas:
+    faixa | n | n_bons | n_maus | taxa_inadimplencia
     """
     df = df.copy()
-    df["faixa"] = pd.qcut(df[var], q=bins, duplicates="drop")
+
+    # Bins dinâmicos (quantis) ou lista fixa
+    if isinstance(bins, int):
+        df["faixa"] = pd.qcut(df[var], q=bins, duplicates="drop")
+    else:
+        df["faixa"] = pd.cut(df[var], bins=bins, include_lowest=True)
 
     taxa = (
         df.groupby("faixa")
         .agg(
             n=(target, "size"),
+            n_bons=(target, lambda x: (x == 0).sum()),
+            n_maus=(target, lambda x: (x == 1).sum()),
             taxa_inadimplencia=(target, "mean")
-
         )
         .reset_index()
     )
@@ -413,23 +422,25 @@ def taxa_inadimplencia_por_variavel(df, var, target="atraso_90d", bins=10):
 
 def plot_inad_var(df, var, target="atraso_90d", bins=10):
     """
-    Plota a taxa de inadimplência por faixas de uma variável contínua.
-    Mostra também o nº de observações em cada faixa.
+    Plota taxa de inadimplência e taxa de bons por faixas de uma variável contínua.
+    Mostra apenas o percentual de inadimplência em cada ponto.
     """
-    # Calcula as taxas
-    taxa = taxa_inadimplencia_por_variavel(df, var, target, bins)
+    taxa = taxa_inadimplencia_por_variavel2(df, var, target, bins)
 
-    # Cria o gráfico
     plt.figure(figsize=(10, 5))
     plt.plot(taxa["faixa"].astype(str), taxa["taxa_inadimplencia"],
              marker="o", label="Taxa de inadimplência")
-    plt.xticks(rotation=45)
-    plt.ylabel("Taxa de Inadimplência")
-    plt.title(f"Taxa de inadimplência por {var}")
+    plt.plot(taxa["faixa"].astype(str), 1 - taxa["taxa_inadimplencia"],
+             marker="s", linestyle="--", label="Taxa de bons")
 
-    # Adiciona rótulos de n_observacoes
+    plt.xticks(rotation=45)
+    plt.ylabel("Taxa")
+    plt.title(f"Taxas por {var}")
+
+    # Adiciona apenas o percentual da taxa de inadimplência
     for i, row in taxa.iterrows():
-        plt.text(i, row["taxa_inadimplencia"]+0.01, str(row["n"]),
+        pct = f"{row['taxa_inadimplencia']*100:.1f}%"
+        plt.text(i, row["taxa_inadimplencia"]+0.02, pct,
                  ha="center", fontsize=8, color="black")
 
     plt.legend()
