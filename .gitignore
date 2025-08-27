@@ -11,3 +11,6 @@ relatorios/
 
 *.zip
 
+__pycache__/
+
+catboost_info/
