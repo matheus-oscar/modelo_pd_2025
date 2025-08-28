@@ -11,6 +11,8 @@ relatorios/
 
 *.zip
 
+*.pyc
+
 pipeline/__pycache__/
 
 notebooks/catboost_info/
