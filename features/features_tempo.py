@@ -20,7 +20,7 @@ def features_tempo_flex(df_tx: pd.DataFrame,
     - flag_sem_movimento_{X}m: cliente já teve transações, mas não naquela janela
 
     Convenções:
-    - np.nan → não houve transação na janela
+    - NaN → não houve transação na janela
     """
 
     resultados = []

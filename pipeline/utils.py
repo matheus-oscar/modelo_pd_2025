@@ -296,6 +296,8 @@ def plot_categ(df, column):
     aux = df.groupby(column)[column].count().reset_index(name='Qtd.')
     aux.plot.bar(x=column, y='Qtd.', rot=0, figsize=(12, 4))
 
+    return aux
+
 
 def plot_txmau_categ(df, column, column_mau, mau=1):
     # usando mau = 1
@@ -304,7 +306,10 @@ def plot_txmau_categ(df, column, column_mau, mau=1):
     aux = df2.groupby(column)["mau"].agg(["mean", 'count'])
     aux = aux.rename(
         columns={'mean': 'Tx. inadimplência', 'count': 'Volumetria'})
+
     aux.plot.bar(rot=45, subplots=True, figsize=(12, 4), fontsize=8)
+
+    return aux
 
 
 def ks(data=None, target=None, prob=None, printar=False, return_ks=False):
