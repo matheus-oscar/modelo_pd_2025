@@ -14,9 +14,9 @@ def gerar_abt(df_clientes, df_inad, df_tx, usar_M_1=True):
 
     Parâmetros
     ----------
-    df_clientes : DataFrame preprocessado de clientes
-    df_inad : DataFrame preprocessado de inadimplência
-    df_tx : DataFrame preprocessado de transações
+    df_clientes : DataFrame pré-processado de clientes
+    df_inad : DataFrame pré-processado de inadimplência
+    df_tx : DataFrame pré-processado de transações
     usar_M_1 : bool
         Define se cutoff das transações considera fim do próprio mês (False) ou mês anterior (True).
 
