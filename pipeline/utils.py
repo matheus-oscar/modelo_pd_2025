@@ -425,7 +425,7 @@ def plot_inad_var(df, var, target="atraso_90d", bins=10):
     Plota taxa de inadimplência e taxa de bons por faixas de uma variável contínua.
     Mostra apenas o percentual de inadimplência em cada ponto.
     """
-    taxa = taxa_inadimplencia_por_variavel2(df, var, target, bins)
+    taxa = taxa_inadimplencia_por_variavel(df, var, target, bins)
 
     plt.figure(figsize=(10, 5))
     plt.plot(taxa["faixa"].astype(str), taxa["taxa_inadimplencia"],

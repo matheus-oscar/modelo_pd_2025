@@ -11,6 +11,6 @@ relatorios/
 
 *.zip
 
-__pycache__/
+pipeline/__pycache__/
 
-catboost_info/
+notebooks/catboost_info/
