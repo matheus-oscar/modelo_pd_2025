@@ -291,17 +291,20 @@ def plotar_ks(y_true, y_pred_proba, titulo="KS Curve"):
     return ks_val, score_ks
 
 
-def plot_categ(df, column):
+def plot_categ(df, coluna,
+               titulo = "",
+               xlabel=None,
+               ylabel = "Qtd."):
     """
     Plota um gráfico de barras para uma variável categórica,
     mostrando a contagem absoluta e a % de cada categoria.
     """
-    aux = df.groupby(column)[column].count().reset_index(name='Qtd.')
+    aux = df.groupby(coluna)[coluna].count().reset_index(name='Qtd.')
     total = aux["Qtd."].sum()
     aux["Pct.%"] = round(100 * aux["Qtd."] / total, 2)
 
     # Plot
-    ax = aux.plot.bar(x=column, y="Qtd.", rot=0, figsize=(12, 4), legend=False)
+    ax = aux.plot.bar(x=coluna, y="Qtd.", rot=0, figsize=(12, 4), legend=False)
 
     # Adiciona % sobre cada barra
     for i, v in enumerate(aux["Qtd."]):
@@ -312,18 +315,40 @@ def plot_categ(df, column):
     ymax = aux["Qtd."].max()
     ax.set_ylim(0, ymax * 1.1)
 
+    ax.set_title(titulo, fontsize=12, fontweight='bold')
+    ax.set_xlabel(xlabel if xlabel else coluna)
+    ax.set_ylabel(ylabel)
+
     return aux
 
 
-def plot_txmau_categ(df, column, column_mau, mau=1):
+def plot_txmau_categ(df, coluna, coluna_mau, mau=1, titulo = 'Taxa de default por categoria',
+                     xlabel=None, ylabel_left="Tx. default", ylabel_right='Volumetria'):
     # usando mau = 1
-    df2 = df[[column, column_mau]].copy()
-    df2['mau'] = [1 if x == mau else 0 for x in df2[column_mau]]
-    aux = df2.groupby(column)["mau"].agg(["mean", 'count'])
+    df2 = df[[coluna, coluna_mau]].copy()
+    df2['mau'] = [1 if x == mau else 0 for x in df2[coluna_mau]]
+    aux = df2.groupby(coluna)["mau"].agg(["mean", 'count'])
     aux = aux.rename(
-        columns={'mean': 'Tx. inadimplência', 'count': 'Volumetria'})
+        columns={'mean': 'Taxa de default', 'count': 'Volumetria'})
 
-    aux.plot.bar(rot=45, subplots=True, figsize=(12, 4), fontsize=8)
+    fig, ax1 = plt.subplots(figsize=(12,5))
+    
+    # Barra = volumetria
+    ax1.bar(aux.index, aux["Volumetria"], alpha=0.6, color="skyblue", label="Volumetria")
+    ax1.set_ylabel(ylabel_right, color="blue")
+    ax1.tick_params(axis="y", labelcolor="blue")
+    ax1.set_xlabel(xlabel if xlabel else coluna)
+    ax1.set_xticklabels(aux.index, rotation=45)
+
+    # Linha = taxa default
+    ax2 = ax1.twinx()
+    ax2.plot(aux.index, aux["Tx. default"], color="red", marker="o", label="Tx. default")
+    ax2.set_ylabel(ylabel_left, color="red")
+    ax2.tick_params(axis="y", labelcolor="red")
+
+    plt.title(titulo, fontsize=12, fontweight="bold")
+    fig.tight_layout()
+    plt.show()
 
     return aux
 
