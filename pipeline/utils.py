@@ -308,6 +308,10 @@ def plot_categ(df, column):
         pct = aux["Pct.%"].iloc[i]
         ax.text(i, v + (0.01 * total), f"{pct}%", ha="center", va="bottom")
 
+    # --- ajuste do limite Y ---
+    ymax = aux["Qtd."].max()
+    ax.set_ylim(0, ymax * 1.1)
+
     return aux
 
 
