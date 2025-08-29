@@ -292,9 +292,9 @@ def plotar_ks(y_true, y_pred_proba, titulo="KS Curve"):
 
 
 def plot_categ(df, coluna,
-               titulo = "",
+               titulo="",
                xlabel=None,
-               ylabel = "Qtd."):
+               ylabel="Qtd."):
     """
     Plota um gráfico de barras para uma variável categórica,
     mostrando a contagem absoluta e a % de cada categoria.
@@ -322,33 +322,38 @@ def plot_categ(df, coluna,
     return aux
 
 
-def plot_txmau_categ(df, coluna, coluna_mau, mau=1, titulo = 'Taxa de default por categoria',
-                     xlabel=None, ylabel_left="Tx. default", ylabel_right='Volumetria'):
-    # usando mau = 1
-    df2 = df[[coluna, coluna_mau]].copy()
-    df2['mau'] = [1 if x == mau else 0 for x in df2[coluna_mau]]
-    aux = df2.groupby(coluna)["mau"].agg(["mean", 'count'])
-    aux = aux.rename(
-        columns={'mean': 'Taxa de default', 'count': 'Volumetria'})
+def plot_txmau_categ(df, column, column_mau, mau=1, sort_by="Volumetria", ascending=False):
+    """
+    Plota dois gráficos de barras (Volumetria e Tx. default) para uma variável categórica.
 
-    fig, ax1 = plt.subplots(figsize=(12,5))
-    
-    # Barra = volumetria
-    ax1.bar(aux.index, aux["Volumetria"], alpha=0.6, color="skyblue", label="Volumetria")
-    ax1.set_ylabel(ylabel_right, color="blue")
-    ax1.tick_params(axis="y", labelcolor="blue")
-    ax1.set_xlabel(xlabel if xlabel else coluna)
-    ax1.set_xticklabels(aux.index, rotation=45)
+    Parâmetros
+    ----------
+    df : DataFrame
+        Base de dados.
+    column : str
+        Nome da coluna categórica.
+    column_mau : str
+        Nome da coluna de inadimplência (0/1).
+    mau : int, default=1
+        Valor que representa inadimplência.
+    sort_by : {"Volumetria", "Tx. default", None}
+        Critério de ordenação das categorias.
+    ascending : bool
+        Ordem crescente ou decrescente.
+    """
+    # Base auxiliar
+    df2 = df[[column, column_mau]].copy()
+    df2["mau"] = (df2[column_mau] == mau).astype(int)
 
-    # Linha = taxa default
-    ax2 = ax1.twinx()
-    ax2.plot(aux.index, aux["Tx. default"], color="red", marker="o", label="Tx. default")
-    ax2.set_ylabel(ylabel_left, color="red")
-    ax2.tick_params(axis="y", labelcolor="red")
+    aux = df2.groupby(column)["mau"].agg(["mean", "count"])
+    aux = aux.rename(columns={"mean": "Tx. default", "count": "Volumetria"})
 
-    plt.title(titulo, fontsize=12, fontweight="bold")
-    fig.tight_layout()
-    plt.show()
+    # Ordenação
+    if sort_by in aux.columns:
+        aux = aux.sort_values(by=sort_by, ascending=ascending)
+
+    # Plot (subplots lado a lado)
+    ax = aux.plot.bar(rot=45, subplots=True, figsize=(12, 4), fontsize=8)
 
     return aux
 
