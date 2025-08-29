@@ -292,9 +292,21 @@ def plotar_ks(y_true, y_pred_proba, titulo="KS Curve"):
 
 
 def plot_categ(df, column):
-    # Plotar um barra de contagem de categoria
+    """
+    Plota um gráfico de barras para uma variável categórica,
+    mostrando a contagem absoluta e a % de cada categoria.
+    """
     aux = df.groupby(column)[column].count().reset_index(name='Qtd.')
-    aux.plot.bar(x=column, y='Qtd.', rot=0, figsize=(12, 4))
+    total = aux["Qtd."].sum()
+    aux["Pct.%"] = round(100 * aux["Qtd."] / total, 2)
+
+    # Plot
+    ax = aux.plot.bar(x=column, y="Qtd.", rot=0, figsize=(12, 4), legend=False)
+
+    # Adiciona % sobre cada barra
+    for i, v in enumerate(aux["Qtd."]):
+        pct = aux["Pct.%"].iloc[i]
+        ax.text(i, v + (0.01 * total), f"{pct}%", ha="center", va="bottom")
 
     return aux
 
