@@ -12,7 +12,7 @@ O fluxo foi estruturado para refletir as **boas práticas de modelagem de risco 
 
 ## Estrutura do projeto
 
-.
+```bash
 ├── data/                   # Dados brutos e processados 
 │   ├── raw/                # Bases originais (ex: clientes_case.csv, transacoes_case.csv)
 │   └── processed/          # ABTs finais prontas para modelagem        
@@ -37,8 +37,7 @@ O fluxo foi estruturado para refletir as **boas práticas de modelagem de risco 
 ├── requirements.txt        # Dependências do projeto
 ├── .gitignore              # Arquivos/pastas ignorados no versionamento
 └── README.md               # Documentação principal
-
-
+```
 ---
 
 ## 🎯 Entendimento do Negócio  
