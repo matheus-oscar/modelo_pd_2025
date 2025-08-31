@@ -6,7 +6,7 @@ Este repositório contém o desenvolvimento de um **modelo de Probabilidade de D
 
 O fluxo foi estruturado para refletir as **boas práticas de modelagem de risco de crédito**, abordando os processos de ***feature engineering*, consolidação da ABT (Analytical Base Table), seleção de variáveis e a modelagem em si**.  
 
-- **Desenvolvimento do Projeto:** [Projeto PD](notebook/case_PD.ipynb)  
+- **Desenvolvimento do Projeto:** [Projeto PD](notebooks/case_PD.ipynb)  
 
 ---
 
@@ -16,27 +16,25 @@ O fluxo foi estruturado para refletir as **boas práticas de modelagem de risco 
 ├── data/                   # Dados brutos e processados 
 │   ├── raw/                # Bases originais (ex: clientes_case.csv, transacoes_case.csv)
 │   └── processed/          # ABTs finais prontas para modelagem        
+│
+├── features/                # Scripts modulares para execução criação das *features* utilizadas na modelagem 
+│   ├── features_clientes_transacional.py
+│   ├── features_clientes.py
+│   ├── features_flags.py
+│   ├── features_quantidade.py
+│   ├── features_tempo.py
+│   ├── features_valor.py
+│
 ├── notebooks/              # Desenvolvimento do modelo. Contém análises exploratórias e
 │   └── case_PD.ipynb       # modelagem
 │
 ├── pipeline/               # Scripts modulares para execução do pipeline. 
-│   ├── feature_clientes.py
-│   ├── feature_transacoes.py
-│   ├── feature_inadimplencia.py
-│   ├── criar_abt.py      # Consolidação da ABT
-│   └── utils.py            # Funções auxiliares reutilizáveis
-│
-├── reports/                # Saídas analíticas
-│   ├── resultados.pdf      # Relatório consolidado
-│   ├── figures/            # Gráficos e imagens finais
-│   └── logs/               # Logs de execução
-│
-├── tests/                  # Testes unitários e validação do pipeline
-│   └── test_utils.py
+│   ├── carregar_dados.py
+│   ├── criar_abt.py
+│   ├── preprocess.py
+│   └── utils.py            # Funções auxiliares para o estudo
 │
 ├── requirements.txt        # Dependências do projeto
-├── .gitignore              # Arquivos/pastas ignorados no versionamento
-└── README.md               # Documentação principal
 ```
 ---
 
