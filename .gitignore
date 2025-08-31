@@ -13,7 +13,7 @@ relatorios/
 
 *.pyc
 
-pipeline/__pycache__/
+__pycache__/
 
 case.ipynb
-notebooks/catboost_info/
+catboost_info/
