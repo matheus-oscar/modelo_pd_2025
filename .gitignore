@@ -15,4 +15,5 @@ relatorios/
 
 pipeline/__pycache__/
 
+notebooks/case.ipynb
 notebooks/catboost_info/
