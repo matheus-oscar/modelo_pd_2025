@@ -17,8 +17,8 @@ O fluxo foi estruturado para refletir as **boas práticas de modelagem de risco 
 │   ├── raw/                # Bases originais (ex: clientes_case.csv, transacoes_case.csv)
 │   └── processed/          # ABTs finais prontas para modelagem        
 │
-├── features/                # Scripts modulares para execução criação das *features* utilizadas na modelagem 
-│   ├── features_clientes_transacional.py
+├── features/                             # Scripts modulares para criação 
+│   ├── features_clientes_transacional.py # das *features* utilizadas na modelagem 
 │   ├── features_clientes.py
 │   ├── features_flags.py
 │   ├── features_quantidade.py
