@@ -4,16 +4,11 @@ venv/
 Infos complementares/
 Apresentação/
 PPT/
-data/
+data/processed/
 relatorios/
 
 *.docx
-
 *.zip
-
 *.pyc
-
 __pycache__/
-
-case.ipynb
 catboost_info/
