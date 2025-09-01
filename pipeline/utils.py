@@ -211,6 +211,67 @@ def comparar_ks(df_M, df_M1, feature, target="atraso_90d", bins=10):
         "delta_KS": None if (ks_M is None or ks_M == 0) else round((ks_M1 - ks_M) / ks_M, 3)
     }
 
+def analisar_concentracao(
+    abt, 
+    lista_var=None, 
+    max_vol=0.95, 
+    target="atraso_90d", 
+    cols_drop=[]
+):
+    """
+    Analisa concentração máxima de categorias nas variáveis da ABT.
+
+    Parâmetros
+    ----------
+    abt : pd.DataFrame
+        ABT consolidada.
+    lista_var : list, default=None
+        Lista de variáveis a analisar. Se None, considera todas da ABT menos target e cols_drop.
+    max_vol : float, default=0.95
+        Limite de concentração (ex: 0.95 = 95%).
+    target : str, default="atraso_90d"
+        Nome da variável target da ABT.
+    cols_drop : list, default=[]
+        Lista de variáveis a serem excluídas da análise (ex: id_cliente).
+
+    Retorna
+    -------
+    dict
+        {
+            "com_concentracao": [variáveis >= max_vol],
+            "sem_concentracao": [variáveis < max_vol],
+            "detalhes": DataFrame com variáveis e concentração máxima
+        }
+    """
+    import pandas as pd
+
+    # --- Definição da lista de variáveis analisadas ---
+    if lista_var is None:
+        lista_var = [c for c in abt.columns if c not in [target] + cols_drop]
+
+    com_conc, sem_conc, base_log = [], [], []
+
+    for var in lista_var:
+        try:
+            pct_max = abt[var].value_counts(normalize=True).max()
+            if pct_max >= max_vol:
+                com_conc.append(var)
+            else:
+                sem_conc.append(var)
+            base_log.append([var, pct_max])
+        except Exception:
+            # Se não conseguir calcular (ex: coluna toda NaN)
+            base_log.append([var, None])
+
+    detalhes = pd.DataFrame(base_log, columns=["VARIAVEL", "CONC_MAX"])\
+                .sort_values("CONC_MAX", ascending=False)
+
+    return {
+        "com_concentracao": com_conc,
+        "sem_concentracao": sem_conc,
+        "detalhes": detalhes
+    }
+
 
 def remover_vars(abt, target="atraso_90d", iv_threshold=0.01, corr_threshold=0.8, cols_drop=[]):
     ivs = {}
