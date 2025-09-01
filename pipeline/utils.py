@@ -280,15 +280,18 @@ def plotar_ks(y_true, y_pred_proba, titulo="KS Curve"):
     plt.figure(figsize=(7, 5))
     plt.plot(df["score"], df["cum_good"], label="Bons acumulados (y=0)")
     plt.plot(df["score"], df["cum_bad"], label="Maus acumulados (y=1)")
-    # plt.vlines(x=score_ks, ymin=df.loc[idx_max,"cum_good"], ymax=df.loc[idx_max,"cum_bad"],
-    #            colors="red", linestyles="--", label=f"KS={ks_val:.3f} @ cutoff {score_ks:.3f}")
+    plt.vlines(x=score_ks, ymin=df.loc[idx_max,"cum_good"], ymax=df.loc[idx_max,"cum_bad"],
+               colors="red", linestyles="--", label=f"KS={ks_val:.3f} @ cutoff {score_ks:.3f}")
     plt.title(titulo)
     plt.xlabel("Probabilidade de Default")
     plt.ylabel("Proporção acumulada")
     plt.legend()
     plt.show()
 
-    return ks_val, score_ks
+    return pd.DataFrame({
+        "KS": round(ks_val, 3),
+        "Cutoff_score": round(score_ks, 3)
+    })
 
 
 def plot_categ(df, coluna,

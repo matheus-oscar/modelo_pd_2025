@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 
 from features.features_clientes import features_cadastrais
 from features.features_valor import features_valor_flex
@@ -56,5 +57,15 @@ def gerar_abt(df_clientes, df_inad, df_tx, usar_M_1=True):
         df_clientes, df_inad, usar_M_1=usar_M_1)
     abt = abt.merge(feats_cli_tx, on=[
                     "id_cliente", "data_referencia"], how="left")
+
+    os.makedirs('../data/processed', exist_ok=True)
+
+    if usar_M_1:
+        abt.to_csv("../data/processed/abt_M1.csv", index=False)
+        abt.to_parquet("../data/processed/abt_M1.parquet", index=False)
+
+    else:
+        abt.to_csv("../data/processed/abt_M.csv", index=False)
+        abt.to_parquet("../data/processed/abt_M.parquet", index=False)
 
     return abt

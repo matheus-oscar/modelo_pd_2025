@@ -38,65 +38,66 @@ O fluxo foi estruturado para refletir as **boas práticas de modelagem de risco 
 ```
 ---
 
-## 🎯 Entendimento do Negócio  
+## Entendimento do contexto
 
 O objetivo é estimar a **probabilidade de inadimplência (default)** em determinado horizonte de tempo, considerando o perfil cadastral, histórico transacional e comportamento prévio dos clientes.  
 
 **DEFAULT DA CARTEIRA DE CLIENTES: 10%**
 
 **KPIs de avaliação:**  
-- AUC (ROC-AUC) 
-- KS (Kolmogorov-Smirnov)  
-- *Precision* e *recall*
+- AUC 
+- KS
+- *Precision* e *Recall*
 
 ---
 
-## ⚙️ Pré-Processamento dos Dados  
+## Pré-Processamento dos Dados  
 
 1. Padronização e consistência de colunas.  
 2. Construção da **ABT (Analytical Base Table)** com janelas de observação e performance (`mes_safra`).  
-   - Garantido que apenas informações **de M-1** estejam disponíveis em M, evitando vazamento de informações de safras ainda não maturadas.  
+   - Opção por utilizar apenas informações **de M-1** com objetivo de evitar vazamento de informações de safras ainda não maturadas, mas que por algum motivo ainda tinham marcação de *default*.  
 3. Tratamento de valores faltantes e variáveis categóricas.  
 
 ---
 
-## 🛠️ Seleção de Variáveis  
+## Pré-seleção de variáveis
 
-Antes da modelagem, foi realizada uma etapa de pré-seleção:  
+Antes da modelagem, foi realizada uma etapa de pré-seleção, tendo como critério:  
 
-- **Correlação**: remoção de variáveis com correlação > 0.8.  
-- **Information Value (IV)**: exclusão de variáveis com baixo poder discriminatório.  
+- **Correlação**: remoção de variáveis com correlação > 0.8, mantendo aquelas com maior IV.  
 
 ---
 
-## 🤖 Modelagem  
+## Modelagem  
 
-Modelos avaliados:  
-- **Decision Trees** – baseline com regras simples de classificação.  
-- **Regressão Logística** – referência estatística e interpretabilidade.  
-- **CatBoost** – algoritmo de *gradient boosting* para maior performance esperada.  
+Modelos testados:
 
-### 🔎 Estratégia de Treino  
-- Divisão treino/validação baseada em `mes_safra`.  
-- **RandomizedSearchCV** para ajuste de hiperparâmetros.  
+- **Decision Trees** 
+- **Regressão Logística** 
+- **CatBoost** 
+
+### Estratégia de Treino  
+- Divisão treino/validação de forma aleatória;
+- Tunig de hiperparâmetros com **RandomizedSearchCV**
 
 ### 📊 Resultados  
 
+- Baixo poder das variáveis de discriminar o público bom do mau (KS=)
+- AUC no patamar de 50%, evidenciando o desbalanceamento como principal problema a ser superado.
 
 ---
 
 ## 📈 Conclusão Estratégica  
 
-- A abordagem confirmou que **variáveis transacionais e de recência** têm maior relevância na explicação do default.  
-- O processo de **seleção de variáveis (correlação + IV)** reduziu dimensionalidade e aumentou a robustez do modelo.  
-- O desbalanceamento se mostrou a maior questão a ser resolvida
-
+- A abordagem confirmou qinicialmente que **variáveis transacionais e de recência** têm maior relevância na explicação do default
+- O desbalanceamento se mostrou a maior questão a ser resolvida, afetando todos os modelos
+- É preciso adicionar novas informações, seja com novos fornecedores de dados ou disponibilização de mais dados já existentes
 ---
 
-## 🚀 Próximos Passos  
+## Próximos Passos  
 
-1. **Feature Engineering avançada** – incluir novas variáveis derivadas, interações e efeitos de sazonalidade.  
-2. **Análise de Lifting** – avaliação da capacidade de segmentação dos clientes em decisores de negócio.  
-3. **Balanceamento de classes** – investigar técnicas de oversampling/undersampling.  
-4. **Deployment** – disponibilizar o modelo como API ou batch processável.  
-5. **Versionamento** – acoplar rastreamento de experimentos (ex: MLflow).  
+1. **Feature Engineering mais profunda** – incluir variáveis provenientes de novas fontes, acrescentar efeitos de interação e efeitos de sazonalidade que possam explicar melhor o *target* 
+2. **Refazer modelos** - com a inclusão de variáveis mais relevantes, ao mesmo tempo em que se trata o desbalanceamento das classes abordagens como alteração do parâmetro *class_weights* nos modelos
+4. **Versionamento** – Integrar MLflow para versionar modelos e garantir uma reprodutibilidade mais robusta
+3. **Deploy** – Implantar o modelo como API para realizar predições em *batch* ou em tempo real
+
