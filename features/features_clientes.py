@@ -7,12 +7,9 @@ import numpy as np
 
 
 def features_cadastrais(df_cli: pd.DataFrame,
-                        id_col: str = "id_cliente",
                         idade_col: str = "idade",
                         renda_col: str = "renda_mensal",
-                        score_col: str = "score_interno",
-                        limite_col: str = "limite_credito",
-                        qtde_prod_col: str = "qtde_produtos") -> pd.DataFrame:
+                        limite_col: str = "limite_credito") -> pd.DataFrame:
     """
     Cria features derivadas da base de clientes 
 
@@ -41,10 +38,6 @@ def features_cadastrais(df_cli: pd.DataFrame,
     ----------------------
     - Idade: quadrática
     - Renda: log, relação com limite
-    - Relacionamento: tempo de conta, flag cliente antigo
-    - Emprego: faixas de estabilidade, razão emprego/relacionamento
-    - Produtos: flag de múltiplos produtos
-    - Score: flag missing
     
     """
 
@@ -64,16 +57,5 @@ def features_cadastrais(df_cli: pd.DataFrame,
     df["renda_por_limite"] = np.where(df[limite_col] > 0,
                                       df[renda_col] /  df[limite_col],
                                     np.nan) 
-
-    # -------------------------------
-    # Produtos
-    # -------------------------------
-    df["multi_produto_flag"] = (df[qtde_prod_col] > 1).astype(int)
-
-    # # -------------------------------
-    # # Score interno
-    # # -------------------------------
-    # df["score_interno_na"] = df[score_col].isna().astype(int)
-
 
     return df
