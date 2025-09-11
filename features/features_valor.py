@@ -8,7 +8,7 @@ def features_valor_flex(df_tx: pd.DataFrame,
                         val_col="valor_transacao",
                         dt_col="data_transacao",
                         ref_col="data_referencia",
-                        usar_M_1=False) -> pd.DataFrame:
+                        usar_M_1=True) -> pd.DataFrame:
     """
     Gera variáveis de VALOR a partir da base de transações,
     com referência na base de inadimplência.
@@ -25,13 +25,12 @@ def features_valor_flex(df_tx: pd.DataFrame,
     - vlr_trans_max : maior valor de transação até o cutoff
     - vlr_trans_min : menor valor de transação até o cutoff
     - comp_vlr_A_vs_B : razão entre valores transacionados em períodos vizinhos
+                        * NaN → ambos zero
+                        * -1 → denominador zero e numerador > 0 (início de atividade)
     - delta_vlr_A_vs_B : diferença absoluta de valores entre períodos vizinhos
-
-    Convenções:
-    ------------------
-    - NaN → cliente não tem nenhuma transação no histórico
-    - -1  → denominador da comparação (período mais longo) é zero e o período curto tem valor > 0
-    - 0   → ambos os períodos não têm valor
+    - flag_completo_Xm : indica se a janela X meses está completamente observada (1/0)
+    - perc_janela_coberta_Xm : proporção de dias observados na janela X meses
+    - flag_cliente_novo : 1 se a primeira transação ocorreu nos últimos 6 meses
     """
 
     resultados = []
@@ -41,12 +40,20 @@ def features_valor_flex(df_tx: pd.DataFrame,
                    ("9m", "12m"), ("12m", "24m"), ("24m", "ever")]
 
     clientes_com_tx = set(df_tx[id_col].unique())
+    # primeira transação de cada cliente
+    primeira_tx_cliente = df_tx.groupby(id_col)[dt_col].min()
 
     for _, row in df_inad.iterrows():
         cid = row[id_col]
         ref_date = row[ref_col]
-        cutoff = (ref_date - pd.offsets.MonthEnd(1)) if usar_M_1 else ref_date
 
+        # cutoff = último dia do mês anterior, se usar_M_1=True
+        if usar_M_1:
+            cutoff = (ref_date - pd.offsets.MonthEnd(1))
+        else:
+            cutoff = ref_date
+
+        # caso sem transações
         if cid not in clientes_com_tx:
             resultados.append({
                 id_col: cid,
@@ -56,24 +63,44 @@ def features_valor_flex(df_tx: pd.DataFrame,
                 "vlr_trans_max": np.nan,
                 "vlr_trans_min": np.nan,
                 **{f"comp_vlr_{a}_vs_{b}": np.nan for a, b in comparacoes},
-                **{f"delta_vlr_{a}_vs_{b}": np.nan for a, b in comparacoes}
+                **{f"delta_vlr_{a}_vs_{b}": np.nan for a, b in comparacoes},
+                **{f"flag_completo_{k}": 0 for k in janelas.keys() if k != "ever"},
+                **{f"perc_janela_coberta_{k}": 0.0 for k in janelas.keys() if k != "ever"},
+                "flag_cliente_novo": np.nan
             })
             continue
 
         tx_cliente = df_tx[(df_tx[id_col] == cid) & (df_tx[dt_col] <= cutoff)]
         feats = {}
 
-        # Totais por janela
+        # Totais por janela (meses fechados)
         for label, meses in janelas.items():
-            if meses is None:
+            if meses is None:  # ever
                 tx_window = tx_cliente
+                feats[f"vlr_trans_{label}"] = tx_window[val_col].sum(
+                ) if not tx_window.empty else 0
             else:
+                # início da janela = primeiro dia do mês (cutoff - (meses-1) meses)
                 start = (cutoff - pd.DateOffset(months=meses-1)).replace(day=1)
-                tx_window = tx_cliente[tx_cliente[dt_col] >= start]
-            feats[f"vlr_trans_{label}"] = tx_window[val_col].sum(
-            ) if not tx_window.empty else 0
+                tx_window = tx_cliente[(tx_cliente[dt_col] >= start) & (
+                    tx_cliente[dt_col] <= cutoff)]
 
-        # Última, máxima e mínima com idxmax/idxmin
+                feats[f"vlr_trans_{label}"] = tx_window[val_col].sum(
+                ) if not tx_window.empty else 0
+
+                # flag completude (janela completa se primeira transação <= start)
+                flag_completo = int(primeira_tx_cliente[cid] <= start)
+                feats[f"flag_completo_{label}"] = flag_completo
+
+                # percentual de cobertura em dias corridos dentro da janela
+                dias_esperados = (cutoff - start).days + 1
+                dias_com_historico = (
+                    cutoff - max(primeira_tx_cliente[cid], start)).days + 1
+                dias_com_historico = max(dias_com_historico, 0)
+                feats[f"perc_janela_coberta_{label}"] = round(
+                    dias_com_historico / dias_esperados, 3)
+
+        # Última, máxima e mínima
         if not tx_cliente.empty:
             idx_ult = tx_cliente[dt_col].idxmax()
             feats["vlr_trans_ult"] = tx_cliente.loc[idx_ult, val_col]
@@ -88,13 +115,22 @@ def features_valor_flex(df_tx: pd.DataFrame,
             feats["vlr_trans_max"] = np.nan
             feats["vlr_trans_min"] = np.nan
 
-        # Comparações vizinhas
+        # Comparações vizinhas (regra unificada)
         for a, b in comparacoes:
             v1 = feats[f"vlr_trans_{a}"]
             v2 = feats[f"vlr_trans_{b}"]
-            feats[f"comp_vlr_{a}_vs_{b}"] = np.nan if (
-                v1 == 0 and v2 == 0) else (-1 if v2 == 0 else round(v1/v2, 3))
+            if v1 == 0 and v2 == 0:
+                comp = np.nan
+            elif v2 == 0:
+                comp = -1
+            else:
+                comp = round(v1/v2, 3)
+            feats[f"comp_vlr_{a}_vs_{b}"] = comp
             feats[f"delta_vlr_{a}_vs_{b}"] = v1 - v2
+
+        # Flag cliente novo (entrou nos últimos 6 meses em relação à ref_date)
+        feats["flag_cliente_novo"] = int(
+            primeira_tx_cliente[cid] > (ref_date - pd.DateOffset(months=6)))
 
         resultados.append({id_col: cid, ref_col: ref_date, **feats})
 

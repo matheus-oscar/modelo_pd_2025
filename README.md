@@ -2,7 +2,7 @@
 
 ## 📌 Descrição do Projeto  
 
-Este repositório contém o desenvolvimento de um **modelo de Probabilidade de Default (PD)** aplicado sobre uma base fictícia de clientes, transações e histórico de inadimplência.  
+Este repositório contém o desenvolvimento de um **modelo de Probabilidade de Default (PD)** sobre as bases de clientes, suas transações e histórico de inadimplência.  
 
 O fluxo foi estruturado para refletir as **boas práticas de modelagem de risco de crédito**, abordando os processos de ***feature engineering*, consolidação da ABT (Analytical Base Table), seleção de variáveis e a modelagem em si**.  
 
