@@ -1,8 +1,8 @@
 # Modelo de Probabilidade de Default (PD) 
 
-## 📌 Descrição do Projeto  
+## Descrição do Projeto  
 
-Este repositório contém o desenvolvimento de um **modelo de Probabilidade de Default (PD)** sobre as bases de clientes, suas transações e histórico de inadimplência.  
+Este repositório contém o desenvolvimento de um **modelo de Probabilidade de Default (PD)** a partir de dados cadastrais, de transações e de histórico de inadimplência de uma base de clientes.
 
 O fluxo foi estruturado para refletir as **boas práticas de modelagem de risco de crédito**, abordando os processos de ***feature engineering*, consolidação da ABT (Analytical Base Table), seleção de variáveis e a modelagem em si**.  
 
@@ -87,7 +87,7 @@ Modelos testados:
 
 ---
 
-## 📈 Conclusão Estratégica  
+## Conclusão
 
 - A abordagem confirmou qinicialmente que **variáveis transacionais e de recência** têm maior relevância na explicação do default
 - O desbalanceamento se mostrou a maior questão a ser resolvida, afetando todos os modelos
