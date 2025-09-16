@@ -74,29 +74,30 @@ Modelos testados:
 
 - **Decision Trees** 
 - **Regressão Logística** 
-- **CatBoost** 
+- **Lightgbm** 
 
-### Estratégia de Treino  
-- Divisão treino/validação de forma aleatória;
+### Seleção de variáveis
+- Remoção inicial de variáveis com concentração em um único valor (baixa variância);
+- Remoção de features por alta correlação, mantendo a que possui o maio valor de IV;
+- Seleção de variáveis por meio de uma ***DecisionTree***, mantendo aquelas que possuem importância acumulada de até 95%
 - Tunig de hiperparâmetros com **RandomizedSearchCV**
 
-### 📊 Resultados  
+### Resultados  
 
-- Baixo poder das variáveis de discriminar o público bom do mau (KS=)
-- AUC no patamar de 50%, evidenciando o desbalanceamento como principal problema a ser superado.
+- Baixo capacidade do modelo discriminar o público bom do mau (**KS < 1%**)
+- AUC no patamar de 50%, evidenciando o poder preditivo das variáveis como principal problema a ser superado.
 
 ---
 
 ## Conclusão
 
-- A abordagem confirmou qinicialmente que **variáveis transacionais e de recência** têm maior relevância na explicação do default
-- O desbalanceamento se mostrou a maior questão a ser resolvida, afetando todos os modelos
+- A abordagem confirmou inicialmente que **variáveis transacionais e de recência** têm maior relevância na explicação do default
 - É preciso adicionar novas informações, seja com novos fornecedores de dados ou disponibilização de mais dados já existentes
 ---
 
 ## Próximos Passos  
 
-1. **Feature Engineering mais profunda** – incluir variáveis provenientes de novas fontes, acrescentar efeitos de interação e efeitos de sazonalidade que possam explicar melhor o *target* 
+1. **Feature Engineering mais elaborada e criativa** – incluir variáveis provenientes de novas fontes, acrescentar efeitos de interação e efeitos de sazonalidade que possam explicar melhor o *target* 
 2. **Refazer modelos** - com a inclusão de variáveis mais relevantes, ao mesmo tempo em que se trata o desbalanceamento das classes abordagens como alteração do parâmetro *class_weights* nos modelos
 4. **Versionamento** – Integrar MLflow para versionar modelos e garantir uma reprodutibilidade mais robusta
 3. **Deploy** – Implantar o modelo como API para realizar predições em *batch* ou em tempo real
