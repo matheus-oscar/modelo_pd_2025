@@ -45,7 +45,7 @@ O fluxo foi estruturado para refletir as **boas práticas de modelagem de risco 
 
 O objetivo é estimar a **probabilidade de inadimplência (default)** em determinado horizonte de tempo, considerando o perfil cadastral, histórico transacional e comportamento prévio dos clientes.  
 
-**DEFAULT DA CARTEIRA DE CLIENTES: 10%**
+**TAXA DE DEFAULT DA CARTEIRA DE CLIENTES: 10%**
 
 **KPIs de avaliação:**  
 - AUC 
