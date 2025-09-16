@@ -34,6 +34,9 @@ O fluxo foi estruturado para refletir as **boas práticas de modelagem de risco 
 │   ├── preprocess.py
 │   └── utils.py            # Funções auxiliares para o estudo
 │
+├── streamlit/              # app para fazer a categorização das 
+│   └── app.py              # variáveis contínuas           
+│
 ├── requirements.txt        # Dependências do projeto
 ```
 ---
@@ -77,7 +80,7 @@ da tabela que contém as informações de volumetria, % bons e % de maus, WOE e 
 - Para utilizar o app, digite no terminal
 
 ```bash
-streamlit run app.py
+streamlit run streamlit/app.py
 ```
 ---
 

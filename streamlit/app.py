@@ -115,7 +115,7 @@ if file is not None:
     excluidas = [target, safra_col] + ([data_col] if data_col else [])
     todas_cols = [c for c in df.columns if c not in excluidas]
     with st.sidebar.expander("Colunas para descartar"):
-        cols_drop = st.multiselect("Selecione as colunas que serão descartadas", todas_cols, default=[])
+        cols_drop = st.multiselect("Selecione as colunas que NÃO serão categorizadas", todas_cols, default=[])
     variaveis_analise = [c for c in todas_cols if c not in cols_drop]
     var = st.sidebar.selectbox("Selecione a variável para análise", variaveis_analise)
 
