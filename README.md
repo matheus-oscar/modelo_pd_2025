@@ -99,7 +99,7 @@ Antes da modelagem, foi realizada uma etapa de pré-seleção de variáveis, ten
 
 - Criação de um app no *Streamlit* que faz uma pré-categorização das variáveis contínuas e permite recategorizações manuais, com a renderização automática
 da tabela que contém as informações de volumetria, % bons e % de maus, WOE e IV por categoria criada, além da visualização temporal pelas safras consideradas.
-- Após as recategorizações ficarem prontas, é possível exportar essa nova base e utilizar nos modelos.
+- Após as recategorizações ficarem prontas, é possível exportar essa nova base e utilizá-la nos modelos.
 - Para utilizar o app, digite no terminal
 
 ```bash
