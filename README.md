@@ -86,19 +86,18 @@ Modelos testados:
 
 - Baixo capacidade do modelo discriminar o público bom do mau (**KS < 1%**)
 - AUC no patamar de 50%, evidenciando o poder preditivo das variáveis como principal problema a ser superado.
-
 ---
 
 ## Conclusão
 
-- A abordagem confirmou inicialmente que **variáveis transacionais e de recência** têm maior relevância na explicação do default
+- Inicialmente houve uma sugestão de que **variáveis transacionais e de recência** teriam maior relevância na explicação do default
 - É preciso adicionar novas informações, seja com novos fornecedores de dados ou disponibilização de mais dados já existentes
 ---
 
 ## Próximos Passos  
 
 1. **Feature Engineering mais elaborada e criativa** – incluir variáveis provenientes de novas fontes, acrescentar efeitos de interação e efeitos de sazonalidade que possam explicar melhor o *target* 
-2. **Refazer modelos** - com a inclusão de variáveis mais relevantes, ao mesmo tempo em que se trata o desbalanceamento das classes abordagens como alteração do parâmetro *class_weights* nos modelos
-4. **Versionamento** – Integrar MLflow para versionar modelos e garantir uma reprodutibilidade mais robusta
+2. **Refazer modelos** - com a inclusão de variáveis mais relevantes, ao mesmo tempo em que se trata o desbalanceamento das classes, com a utilização de estratégias como alteração do parâmetro *class_weights* nos modelos
+4. **Versionamento** – Integrar MLflow para versionar modelos e garantir sua reprodutibilidade
 3. **Deploy** – Implantar o modelo como API para realizar predições em *batch* ou em tempo real
 
