@@ -50,13 +50,14 @@ O fluxo foi estruturado para refletir as **boas práticas de modelagem de risco 
 
 
 2. Crie um ambiente virtual
-   ```bash
+
+```bash
    python -m venv venv
    venv\Scripts\activate
 ```
 
 3. Instale as dependências
-   ```bash
+```bash
    pip install -r requirements.txt
 ```
 
