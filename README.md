@@ -84,8 +84,6 @@ streamlit run streamlit/app.py
 ```
 ---
 
-- Está em desenvolvimento uma opção para exportar e importar as categorizações feitas em etapas anteriores, caso precisem ser revisitadas.
-
 ## Modelagem  
 
 Modelos testados:
@@ -119,6 +117,7 @@ Modelos testados:
 
 1. **Feature Engineering mais elaborada e criativa** – incluir variáveis provenientes de novas fontes, acrescentar efeitos de interação e efeitos de sazonalidade que possam explicar melhor o *target* 
 2. **Refazer modelos** - com a inclusão de variáveis mais relevantes, ao mesmo tempo em que se trata o desbalanceamento das classes, com a utilização de estratégias como alteração do parâmetro *class_weights* nos modelos
+3. **Exportar categorizações** - Adicionar opção para exportar e importar as categorizações feitas pelo app do *streamlit*, caso precisem ser revisitadas.
 4. **Versionamento** – Integrar MLflow para versionar modelos e garantir sua reprodutibilidade
 3. **Deploy** – Implantar o modelo como API para realizar predições em *batch* ou em tempo real
 
