@@ -10,6 +10,29 @@ O fluxo foi estruturado para refletir as **boas práticas de modelagem de risco 
 
 ---
 
+## Como utilizar
+
+1. Clone o repositório
+
+```bash
+   git clone https://github.com/matheus-oscar/modelo_pd_2025.git
+   cd modelo_pd_2025
+```
+
+
+2. Crie um ambiente virtual
+
+```bash
+   python -m venv venv
+   venv\Scripts\activate
+```
+
+3. Instale as dependências
+```bash
+   pip install -r requirements.txt
+```
+---
+
 ## Estrutura do projeto
 
 ```bash
@@ -40,26 +63,6 @@ O fluxo foi estruturado para refletir as **boas práticas de modelagem de risco 
 ├── requirements.txt        # Dependências do projeto
 ```
 ---
-
-1. Clone o repositório
-
-```bash
-   git clone https://github.com/matheus-oscar/modelo_pd_2025.git
-   cd modelo_pd_2025
-```
-
-
-2. Crie um ambiente virtual
-
-```bash
-   python -m venv venv
-   venv\Scripts\activate
-```
-
-3. Instale as dependências
-```bash
-   pip install -r requirements.txt
-```
 
 ## Entendimento do contexto
 
