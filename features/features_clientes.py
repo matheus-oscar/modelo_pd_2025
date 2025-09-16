@@ -1,77 +1,88 @@
 import pandas as pd
 import numpy as np
 
-# -------------------------------------
-# FEATURE ENGINEERING - CLIENTES
-# -------------------------------------
 
-
-def features_cadastrais(df_cli: pd.DataFrame,
-                        id_col: str = "id_cliente",
-                        idade_col: str = "idade",
-                        renda_col: str = "renda_mensal",
-                        score_col: str = "score_interno",
-                        limite_col: str = "limite_credito",
-                        qtde_prod_col: str = "qtde_produtos") -> pd.DataFrame:
+def features_clientes(df_cli: pd.DataFrame,
+                      df_inad: pd.DataFrame,
+                      id_col: str = "id_cliente",
+                      dt_abertura_col: str = "data_abertura_conta",
+                      idade_col: str = "idade",
+                      renda_col: str = "renda_mensal",
+                      limite_col: str = "limite_credito",
+                      qtde_prod_col: str = "qtde_produtos",
+                      ref_col: str = "data_referencia",
+                      usar_M_1: bool = True) -> pd.DataFrame:
     """
-    Cria features derivadas da base de clientes 
+    Gera features de clientes combinando atributos cadastrais (originais) e derivadas.
 
-    Parâmetros
-    ----------
-    df_cli : DataFrame
-        Base de clientes já sanitizada (vinda de preprocess_clientes).
-    id_col : str
-        Nome da coluna identificadora do cliente.
-    dt_abertura_col : str
-        Nome da coluna de data de abertura da conta.
-    idade_col : str
-        Nome da coluna com a idade (anos).
-    renda_col : str
-        Nome da coluna com a renda mensal.
-    score_col : str
-        Nome da coluna com o score interno.
-    limite_col : str
-        Nome da coluna com o limite de crédito.
-    qtde_prod_col : str
-        Nome da coluna com a quantidade de produtos.
-    emprego_col : str
-        Nome da coluna com o tempo de emprego (anos).
+    Alinhamento temporal:
+    ---------------------
+    - usar_M_1=True (padrão): cutoff = último dia do mês anterior (M-1).
+      Ex.: ref_date=30/04/2024 → cutoff=31/03/2024.
+    - usar_M_1=False: cutoff = a própria data de referência (M).
 
-    Categorias de features
-    ----------------------
-    - Idade: quadrática
-    - Renda: log, relação com limite
-    - Relacionamento: tempo de conta, flag cliente antigo
-    - Emprego: faixas de estabilidade, razão emprego/relacionamento
-    - Produtos: flag de múltiplos produtos
-    - Score: flag missing
-
+    Saída:
+    ------
+    DataFrame expandido por cliente e safra (data_referencia), contendo:
+    - Todas as colunas originais de df_cli.
+    - Novas features derivadas:
+        * tempo_relacionamento_anos
+        * idade2
+        * log_renda
+        * renda_por_limite
     """
 
-    df = df_cli.copy()
+    cli_index = df_cli.set_index(id_col)
+    registros = []
 
-    # -------------------------------
-    # Idade
-    # -------------------------------
-    df["idade2"] = df[idade_col] ** 2
+    for _, row in df_inad.iterrows():
+        cid = row[id_col]
+        ref_date = row[ref_col]
+        cutoff = (ref_date - pd.offsets.MonthEnd(1)) if usar_M_1 else ref_date
 
-    # -------------------------------
-    # Renda, renda x limite
-    # -------------------------------
-    df["log_renda"] = np.log1p(df[renda_col])
+        if cid not in cli_index.index:
+            # Preenche com NaN para todas as colunas originais + derivadas
+            vazio = {col: np.nan for col in df_cli.columns if col != id_col}
+            vazio.update({
+                id_col: cid,
+                ref_col: ref_date,
+                "tempo_relacionamento_anos": np.nan,
+                "idade2": np.nan,
+                "log_renda": np.nan,
+                "renda_por_limite": np.nan
+            })
+            registros.append(vazio)
+            continue
 
-    df["renda_por_limite"] = np.where(df[limite_col] > 0,
-                                      df[renda_col] / df[limite_col],
-                                      np.nan)
+        cli = cli_index.loc[cid].to_dict()
 
-    # -------------------------------
-    # Produtos
-    # -------------------------------
-    df["multi_produto_flag"] = (df[qtde_prod_col] > 1).astype(int)
+        # tempo de relacionamento (anos)
+        dt_abertura = cli.get(dt_abertura_col, pd.NaT)
+        if pd.isna(dt_abertura) or (cutoff <= dt_abertura):
+            anos_rel = np.nan
+        else:
+            anos_rel = round((cutoff - dt_abertura).days / 365.25, 4)
 
-    # # -------------------------------
-    # # Score interno
-    # # -------------------------------
-    # df["score_interno_na"] = df[score_col].isna().astype(int)
+        # features derivadas
+        idade2 = cli[idade_col] ** 2 if not pd.isna(
+            cli.get(idade_col)) else np.nan
+        log_renda = np.log1p(cli.get(renda_col, np.nan))
+        renda_por_limite = (
+            cli[renda_col] / cli[limite_col]
+            if (not pd.isna(cli.get(renda_col)) and cli.get(limite_col, 0) > 0)
+            else np.nan
+        )
 
-    return df
+        # montar registro
+        registro = cli.copy()
+        registro.update({
+            id_col: cid,
+            ref_col: ref_date,
+            "tempo_relacionamento_anos": anos_rel,
+            "idade2": idade2,
+            "log_renda": log_renda,
+            "renda_por_limite": renda_por_limite
+        })
+        registros.append(registro)
+
+    return pd.DataFrame(registros).sort_values([id_col, ref_col]).reset_index(drop=True)
