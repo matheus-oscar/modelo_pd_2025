@@ -81,6 +81,8 @@ streamlit run app.py
 ```
 ---
 
+- Está em desenvolvimento uma opção para exportar e importar as categorizações feitas em etapas anteriores, caso precisem ser revisitadas
+
 ## Modelagem  
 
 Modelos testados:
