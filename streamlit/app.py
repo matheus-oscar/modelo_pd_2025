@@ -54,18 +54,27 @@ def tabela_consolidada(df, var_cat, target):
     }])
     return pd.concat([tab, total_row], ignore_index=True)
 
-def plot_taxa_por_safra(df, var_cat, target, safra_col="safra"):
+def plot_taxa_por_safra(df, var_cat, target, safra_col="safra", width=6, height=3):
     resumo = df.groupby([safra_col, var_cat])[target].mean().reset_index()
-    plt.figure(figsize=(8, 4))
+    fig, ax = plt.subplots(figsize=(width, height))
     for cat in resumo[var_cat].unique():
         subset = resumo[resumo[var_cat] == cat]
-        plt.plot(subset[safra_col], subset[target], marker="o", label=str(cat))
-    plt.title(f"Taxa de Default por Safra ({var_cat})")
-    plt.xlabel("Safra")
-    plt.ylabel("Taxa de Default")
-    plt.xticks(rotation=45)
-    plt.legend()
-    st.pyplot(plt)
+        ax.plot(subset[safra_col], subset[target], marker="o", label=str(cat))
+    
+    ax.set_title("Taxa de Default por Safra")
+    ax.set_xlabel("Safra", fontsize=8)
+    ax.set_ylabel("Taxa de Default")
+    
+    # Ajustar ticks e legendas
+    ax.tick_params(axis="x", labelsize=7, rotation=45)
+    ax.tick_params(axis="y", labelsize=7)
+
+    # Legenda com fonte menor e caixas reduzidas
+    ax.legend(fontsize=5, markerscale=0.8, frameon=True, loc="best")
+    
+    # plt.xticks(rotation=45)
+    # ax.legend()
+    st.pyplot(fig)
 
 # ==========================================
 # App principal
@@ -93,7 +102,7 @@ if file is not None:
 
     valores_unicos = df[target].dropna().unique()
     if len(valores_unicos) > 2:
-        st.error(f"A coluna '{target}' tem mais de 2 valores únicos. Selecione uma coluna binária (0/1).")
+        st.error(f"❌ A coluna '{target}' tem mais de 2 valores únicos. Selecione uma coluna binária (0/1).")
         st.stop()
 
     # Criar safra se não foi selecionada
@@ -115,9 +124,14 @@ if file is not None:
     excluidas = [target, safra_col] + ([data_col] if data_col else [])
     todas_cols = [c for c in df.columns if c not in excluidas]
     with st.sidebar.expander("Colunas para descartar"):
-        cols_drop = st.multiselect("Selecione as colunas que NÃO serão categorizadas", todas_cols, default=[])
+        cols_drop = st.multiselect("Selecione colunas a ignorar", todas_cols, default=[])
     variaveis_analise = [c for c in todas_cols if c not in cols_drop]
     var = st.sidebar.selectbox("Selecione a variável para análise", variaveis_analise)
+
+    # Configurações do gráfico
+    st.sidebar.header("📈 Configurações do gráfico")
+    width = st.sidebar.slider("📐 Largura", 4, 12, 6)
+    height = st.sidebar.slider("📐 Altura", 2, 8, 3)
 
     # ======================
     # Área principal - Resultados
@@ -125,25 +139,38 @@ if file is not None:
     if var:
         df_aux = binarizar_var(df, var, target)
 
-        st.subheader("📊 Tabela consolidada (categorização inicial)")
+        # Tabela inicial
+        st.subheader("📊 Tabela com categorização inicial")
         tab_ini = tabela_consolidada(df_aux, "faixa", target)
         st.dataframe(tab_ini)
 
-        st.subheader("✏️ Reagrupamento manual")
+        # Reagrupamento manual
+        st.subheader("✏️ Categorização manual")
         categorias = tab_ini.loc[tab_ini["faixa"] != "TOTAL", "faixa"].tolist()
-        grupos = {cat: st.text_input(f"Grupo para {cat}", value=cat, key=f"{var}_{cat}") for cat in categorias}
+        grupos = {
+            cat: st.text_input(f"Defina grupo para {cat} ({var})", value=cat, key=f"{var}_{cat}")
+            for cat in categorias
+        }
         df_aux["faixa_final"] = df_aux["faixa"].map(grupos)
 
-        st.subheader("📊 Tabela consolidada (após reagrupamento)")
+        # Tabela final
+        st.subheader("📊 Tabela após recategorização")
         tab_final = tabela_consolidada(df_aux, "faixa_final", target)
         st.dataframe(tab_final)
 
+        # Gráficos lado a lado
         st.subheader("📈 Taxa de default por safra")
-        plot_taxa_por_safra(df_aux, "faixa_final", target, safra_col)
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("**Categorização inicial)**")
+            plot_taxa_por_safra(df_aux, "faixa", target, safra_col, width, height)
+        with col2:
+            st.markdown("**Categorização atual**")
+            plot_taxa_por_safra(df_aux, "faixa_final", target, safra_col, width, height)
 
         # Ações
         st.sidebar.header("💾 Opções")
-        if st.sidebar.button("Salvar recategorização"):
+        if st.sidebar.button("💾 Salvar recategorização"):
             st.session_state["resultados"][var] = df_aux["faixa_final"].copy()
             st.session_state["ivs"][var] = tab_final.loc[tab_final["faixa_final"] == "TOTAL", "IV"].values[0]
             st.success(f"Recategorização de {var} salva!")
