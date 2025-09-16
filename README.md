@@ -62,10 +62,23 @@ O objetivo é estimar a **probabilidade de inadimplência (default)** em determi
 
 ## Pré-seleção de variáveis
 
-Antes da modelagem, foi realizada uma etapa de pré-seleção, tendo como critério:  
+Antes da modelagem, foi realizada uma etapa de pré-seleção de variáveis, tendo como critério:  
 
-- **Correlação**: remoção de variáveis com correlação > 0.8, mantendo aquelas com maior IV.  
+- Remoção inicial de variáveis com concentração em um único valor (**baixa variância**);
+- Remoção de features por alta correlação, mantendo a que possui o maior valor de IV;  
 
+---
+
+## Etapa intermediária
+
+- Criação de um app no *Streamlit* que faz uma pré-categorização das variáveis contínuas e permite recategorizações manuais, com a renderização automática
+da tabela que contém as informações de volumetria, % bons e % de maus, WOE e IV por categoria criada, além da visualização temporal pelas safras consideradas.
+- Após as recategorizações ficarem prontas, é possível exportar essa nova base e utilizar nos modelos.
+- Para utilizar o app, digite no terminal
+
+```bash
+streamlit run app.py
+```
 ---
 
 ## Modelagem  
@@ -76,11 +89,14 @@ Modelos testados:
 - **Regressão Logística** 
 - **Lightgbm** 
 
+---
+
 ### Seleção de variáveis
-- Remoção inicial de variáveis com concentração em um único valor (baixa variância);
-- Remoção de features por alta correlação, mantendo a que possui o maio valor de IV;
+-
 - Seleção de variáveis por meio de uma ***DecisionTree***, mantendo aquelas que possuem importância acumulada de até 95%
 - Tunig de hiperparâmetros com **RandomizedSearchCV**
+
+---
 
 ### Resultados  
 
